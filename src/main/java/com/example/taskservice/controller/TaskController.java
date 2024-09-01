@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class TaskController {
     })
     public Mono<ResponseEntity<TaskResponseDTO>> createTask(
             @RequestBody
-            @Parameter(description = "Task data for the new task", required = true) TaskRequestDTO taskRequestDTO) {
+            @Parameter(description = "Task data for the new task", required = true) @Valid TaskRequestDTO taskRequestDTO) {
         return taskService.createTask(taskRequestDTO)
                 .map(createdTask -> ResponseEntity.status(HttpStatus.CREATED).body(createdTask));
     }
@@ -110,7 +111,7 @@ public class TaskController {
             @PathVariable("id")
             @Parameter(description = "ID of the task to be updated", required = true, example = "1") Long id,
             @RequestBody
-            @Parameter(description = "Updated task data", required = true) TaskRequestDTO taskRequestDTO) {
+            @Parameter(description = "Updated task data", required = true) @Valid TaskRequestDTO taskRequestDTO) {
         return taskService.updateTask(id, taskRequestDTO)
                 .map(updatedTask -> ResponseEntity.status(HttpStatus.OK).body(updatedTask));
     }
