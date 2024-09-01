@@ -6,21 +6,27 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static com.example.taskservice.commons.Constants.DESCRIPTION_IS_REQUIRED;
+import static com.example.taskservice.commons.Constants.STATUS_IS_REQUIRED;
+import static com.example.taskservice.commons.Constants.TITLE_IS_REQUIRED;
+import static com.example.taskservice.commons.Constants.USER_EMAIL_IS_NOT_VALID;
+import static com.example.taskservice.commons.Constants.USER_EMAIL_IS_REQUIRED;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskRequestDTO {
 
-    @NotBlank(message = "Title is required and cannot be empty or blank.")
+    @NotBlank(message = TITLE_IS_REQUIRED)
     private String title;
 
-    @NotBlank(message = "Description is required and cannot be empty or blank.")
+    @NotBlank(message = DESCRIPTION_IS_REQUIRED)
     private String description;
 
-    @NotBlank(message = "Status is required and cannot be empty or blank.")
+    @NotBlank(message = STATUS_IS_REQUIRED)
     private String status;
 
-    @NotBlank(message = "User's Email is required and cannot be empty or blank.")
-    @Email(message = "User's Email is not valid.")
+    @NotBlank(message = USER_EMAIL_IS_REQUIRED)
+    @Email(message = USER_EMAIL_IS_NOT_VALID)
     private String userEmail;
 }
