@@ -14,6 +14,7 @@ TaskService is built using **Spring WebFlux**, embracing reactive programming pr
 - **Reactive Programming**: Powered by Spring WebFlux for building responsive, non-blocking, and event-driven applications.
 - **High Scalability**: Designed to scale effortlessly with increasing loads, suitable for high-traffic environments.
 - **Integration Ready**: Seamlessly integrates with other components within the NoteList ecosystem, ensuring smooth interoperability.
+- **API Documentation**: Integrated Swagger documentation provides an interactive interface to explore the API.
 
 As an integral part of the NoteList application, TaskService ensures a responsive, reliable, and efficient backend for managing tasks, enhancing the overall user experience.
 
@@ -23,7 +24,9 @@ As an integral part of the NoteList application, TaskService ensures a responsiv
 - **Spring WebFlux**: The core framework for building the application's reactive, asynchronous web services.
 - **Spring Data R2DBC**: Facilitates reactive access to relational databases, integrating seamlessly with Spring WebFlux.
 - **H2 Database**: An in-memory database used for development and testing purposes, allowing rapid prototyping.
+- **PostgreSQL**: A robust, production-ready relational database supported by the service for scalable data management.
 - **R2DBC H2 Driver**: Enables reactive database interactions with the H2 database.
+- **R2DBC PostgreSQL Driver**: Enables reactive interaction with PostgreSQL databases.
 - **SpringDoc OpenAPI**: Automatically generates detailed API documentation, following OpenAPI standards.
 - **Reactor Test**: Provides utilities for testing reactive streams, ensuring the correctness of reactive workflows.
 - **Spring Boot Test**: Supports comprehensive testing of the application, including unit and integration tests.
