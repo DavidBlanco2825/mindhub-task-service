@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/tasks")
@@ -49,8 +53,11 @@ public class TaskController {
     public Mono<ResponseEntity<TaskResponseDTO>> createTask(
             @RequestBody
             @Parameter(description = "Task data for the new task", required = true) @Valid TaskRequestDTO taskRequestDTO) {
+        log.info("Received request to create task: {}", taskRequestDTO);
         return taskService.createTask(taskRequestDTO)
-                .map(createdTask -> ResponseEntity.status(HttpStatus.CREATED).body(createdTask));
+                .map(createdTask -> ResponseEntity.status(HttpStatus.CREATED).body(createdTask))
+                .doOnSuccess(response -> log.info("Task created successfully with ID: {}", Objects.requireNonNull(response.getBody()).getId()))
+                .doOnError(error -> log.error("Failed to create task: {}", error.getMessage(), error));
     }
 
     @GetMapping("/{id}")
@@ -70,8 +77,11 @@ public class TaskController {
     public Mono<ResponseEntity<TaskResponseDTO>> getTaskById(
             @PathVariable("id")
             @Parameter(description = "ID of the task to be retrieved", required = true, example = "1") Long id) {
+        log.info("Received request to get task by ID: {}", id);
         return taskService.getTaskById(id)
-                .map(existingTask -> ResponseEntity.status(HttpStatus.OK).body(existingTask));
+                .map(existingTask -> ResponseEntity.status(HttpStatus.OK).body(existingTask))
+                .doOnSuccess(response -> log.info("Task retrieved successfully with ID: {}", id))
+                .doOnError(error -> log.error("Failed to retrieve task: {}", error.getMessage(), error));
     }
 
     @GetMapping
@@ -86,11 +96,14 @@ public class TaskController {
                                     example = "An error occurred while processing your request.")))
     })
     public Mono<ResponseEntity<Flux<TaskResponseDTO>>> getAllTasks() {
+        log.info("Received request to get all tasks");
         return taskService.getAllTasks()
                 .collectList()
                 .filter(tasks -> !tasks.isEmpty())
                 .map(tasks -> ResponseEntity.ok(Flux.fromIterable(tasks)))
-                .defaultIfEmpty(ResponseEntity.noContent().build());
+                .defaultIfEmpty(ResponseEntity.noContent().build())
+                .doOnSuccess(response -> log.info("All tasks retrieved successfully"))
+                .doOnError(error -> log.error("Failed to retrieve all tasks: {}", error.getMessage(), error));
     }
 
     @PutMapping("/{id}")
@@ -112,8 +125,11 @@ public class TaskController {
             @Parameter(description = "ID of the task to be updated", required = true, example = "1") Long id,
             @RequestBody
             @Parameter(description = "Updated task data", required = true) @Valid TaskRequestDTO taskRequestDTO) {
+        log.info("Received request to update task with ID: {}", id);
         return taskService.updateTask(id, taskRequestDTO)
-                .map(updatedTask -> ResponseEntity.status(HttpStatus.OK).body(updatedTask));
+                .map(updatedTask -> ResponseEntity.status(HttpStatus.OK).body(updatedTask))
+                .doOnSuccess(response -> log.info("Task updated successfully with ID: {}", id))
+                .doOnError(error -> log.error("Failed to update task: {}", error.getMessage(), error));
     }
 
     @DeleteMapping("/{id}")
@@ -128,10 +144,13 @@ public class TaskController {
                             schema = @Schema(type = "string",
                                     example = "An error occurred while processing your request.")))
     })
-    public Mono<ResponseEntity<Void>> deleteTask(
+    public Mono<ResponseEntity<Object>> deleteTask(
             @PathVariable("id")
             @Parameter(description = "ID of the task to be deleted", required = true, example = "1") Long id) {
+        log.info("Received request to delete task with ID: {}", id);
         return taskService.deleteTask(id)
-                .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
+                .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()))
+                .doOnSuccess(response -> log.info("Task deleted successfully with ID: {}", id))
+                .doOnError(error -> log.error("Failed to delete task: {}", error.getMessage(), error));
     }
 }
