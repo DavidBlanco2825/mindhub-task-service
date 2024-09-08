@@ -34,7 +34,7 @@ class TaskControllerTest {
 
     @BeforeEach
     void setUp() {
-        taskRequestDTO = new TaskRequestDTO("Test Task", "Test Description", "Pending", "user@example.com");
+        taskRequestDTO = new TaskRequestDTO("Test Task", "Test Description", "Pending");
         taskResponseDTO = new TaskResponseDTO(1L, "Test Task", "Test Description", "Pending");
     }
 
