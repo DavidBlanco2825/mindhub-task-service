@@ -53,6 +53,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Flux<TaskResponseDTO> getAllTasksByUserEmail(String userEmail) {
+        log.info("Fetching all tasks with User email: {}", userEmail);
+        return taskRepository.findByUserEmail(userEmail)
+                .map(taskMapper::toResponseDto)
+                .doOnComplete(() -> log.debug("All tasks that belongs to email {}, fetched successfully", userEmail))
+                .doOnError(error -> log.error("Error occurred while fetching all tasks: {}", error.getMessage(), error));
+    }
+
+    @Override
     public Mono<TaskResponseDTO> updateTask(Long id, TaskRequestDTO taskRequestDTO) {
         log.info("Updating task with ID: {}", id);
         return taskRepository.findById(id)

@@ -13,6 +13,8 @@ public interface TaskService {
 
     Flux<TaskResponseDTO> getAllTasks();
 
+    Flux<TaskResponseDTO> getAllTasksByUserEmail(String userEmail);
+
     Mono<TaskResponseDTO> updateTask(Long id, TaskRequestDTO taskRequestDTO);
 
     Mono<Void> deleteTask(Long id);
