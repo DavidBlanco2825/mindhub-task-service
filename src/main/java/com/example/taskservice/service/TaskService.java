@@ -9,6 +9,8 @@ public interface TaskService {
 
     Mono<TaskResponseDTO> createTask(TaskRequestDTO taskRequestDTO);
 
+    Mono<TaskResponseDTO> createTask(String userEmail, TaskRequestDTO taskRequestDTO);
+
     Mono<TaskResponseDTO> getTaskById(Long id);
 
     Flux<TaskResponseDTO> getAllTasks();

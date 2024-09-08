@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,14 +52,17 @@ public class TaskController {
                             schema = @Schema(type = "string", example = "An error occurred while processing your request.")))
     })
     public Mono<ResponseEntity<TaskResponseDTO>> createTask(
+            ServerWebExchange exchange,
             @RequestBody
             @Parameter(description = "Task data for the new task", required = true) @Valid TaskRequestDTO taskRequestDTO) {
+        String userEmail = getUserEmailFromExchange(exchange);
         log.info("Received request to create task: {}", taskRequestDTO);
-        return taskService.createTask(taskRequestDTO)
+        return taskService.createTask(userEmail, taskRequestDTO)
                 .map(createdTask -> ResponseEntity.status(HttpStatus.CREATED).body(createdTask))
                 .doOnSuccess(response -> log.info("Task created successfully with ID: {}", Objects.requireNonNull(response.getBody()).getId()))
                 .doOnError(error -> log.error("Failed to create task: {}", error.getMessage(), error));
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Get Task by ID", description = "Returns task information based on the provided ID.")
@@ -103,6 +107,29 @@ public class TaskController {
                 .map(tasks -> ResponseEntity.ok(Flux.fromIterable(tasks)))
                 .defaultIfEmpty(ResponseEntity.noContent().build())
                 .doOnSuccess(response -> log.info("All tasks retrieved successfully"))
+                .doOnError(error -> log.error("Failed to retrieve all tasks: {}", error.getMessage(), error));
+    }
+
+    @GetMapping("/my-tasks")
+    @Operation(summary = "Get All Tasks that belongs to an user", description = "Returns all tasks belonging to an user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tasks successfully returned.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(type = "string",
+                                    example = "An error occurred while processing your request.")))
+    })
+    public Mono<ResponseEntity<Flux<TaskResponseDTO>>> getAllTasksByUserEmail(ServerWebExchange exchange) {
+        String userEmail = getUserEmailFromExchange(exchange);
+        log.info("Received request to get all tasks for user with email: {}", userEmail);
+        return taskService.getAllTasksByUserEmail(userEmail)
+                .collectList()
+                .filter(tasks -> !tasks.isEmpty())
+                .map(tasks -> ResponseEntity.ok(Flux.fromIterable(tasks)))
+                .defaultIfEmpty(ResponseEntity.noContent().build())
+                .doOnSuccess(response -> log.info("All tasks retrieved successfully for email {}", userEmail))
                 .doOnError(error -> log.error("Failed to retrieve all tasks: {}", error.getMessage(), error));
     }
 
@@ -152,5 +179,9 @@ public class TaskController {
                 .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()))
                 .doOnSuccess(response -> log.info("Task deleted successfully with ID: {}", id))
                 .doOnError(error -> log.error("Failed to delete task: {}", error.getMessage(), error));
+    }
+
+    private String getUserEmailFromExchange(ServerWebExchange exchange) {
+        return exchange.getRequest().getHeaders().getFirst("username");
     }
 }

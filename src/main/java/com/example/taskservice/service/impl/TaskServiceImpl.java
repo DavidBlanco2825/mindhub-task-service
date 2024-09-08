@@ -34,6 +34,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Mono<TaskResponseDTO> createTask(String userEmail, TaskRequestDTO taskRequestDTO) {
+        log.info("Creating task with user email: {} and title: {}", userEmail, taskRequestDTO.getTitle());
+        Task task = taskMapper.toEntity(taskRequestDTO);
+        task.setUserEmail(userEmail);
+        return taskRepository.save(task)
+                .doOnSuccess(savedTask ->
+                        log.debug("Task created successfully with ID: {}, and user email: {}",
+                                savedTask.getId(), savedTask.getUserEmail())
+                )
+                .map(taskMapper::toResponseDto)
+                .doOnError(error -> log.error("Error occurred while creating task: {}", error.getMessage(), error));
+    }
+
+    @Override
     public Mono<TaskResponseDTO> getTaskById(Long id) {
         log.info("Fetching task with ID: {}", id);
         return taskRepository.findById(id)

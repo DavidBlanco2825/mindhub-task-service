@@ -30,7 +30,6 @@ public class TaskMapper {
         task.setTitle(taskRequestDTO.getTitle());
         task.setDescription(taskRequestDTO.getDescription());
         task.setStatus(taskRequestDTO.getStatus());
-        task.setUserEmail(taskRequestDTO.getUserEmail());
 
         return task;
     }
